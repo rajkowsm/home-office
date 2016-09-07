@@ -37,10 +37,16 @@ def get_name():
 	name=pwd.getpwuid(os.getuid())[4].split(", ")
 	return name[1]+" "+name[0]
 
-recipient = sys.argv[1]
-homeOfficeDay=sys.argv[2]
+def format_my_email(email):
+	return get_name()+"<"+email+">"
 
-subject = 'Home Office Request\nContent-Type: text/html'
+recipient = sys.argv[1]
+sender=sys.argv[2]
+homeOfficeDay=sys.argv[3]
+
+print homeOfficeDay
+
+subject = 'Home Office Request\nContent-Type: text/html\nFrom: '+format_my_email(sender)
 
 author=get_name()
 date=calculate_date(homeOfficeDay)
