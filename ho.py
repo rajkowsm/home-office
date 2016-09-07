@@ -44,8 +44,6 @@ recipient = sys.argv[1]
 sender=sys.argv[2]
 homeOfficeDay=sys.argv[3]
 
-print homeOfficeDay
-
 subject = 'Home Office Request\nContent-Type: text/html\nFrom: '+format_my_email(sender)
 
 author=get_name()
