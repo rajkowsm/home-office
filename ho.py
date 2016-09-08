@@ -44,10 +44,9 @@ recipient = sys.argv[1]
 sender=sys.argv[2]
 homeOfficeDay=sys.argv[3]
 
-subject = 'Home Office Request\nContent-Type: text/html\nFrom: '+format_my_email(sender)
-
-author=get_name()
 date=calculate_date(homeOfficeDay)
+subject = 'Home Office Request for '+date+'\nContent-Type: text/html\nFrom: '+format_my_email(sender)
+author=get_name()
 body=prepare_message(date, author)
 
 send_message(recipient, subject, body)
