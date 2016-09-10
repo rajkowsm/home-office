@@ -1,30 +1,45 @@
 #!/usr/bin/python
 
-import subprocess, sys, datetime, pwd, os
+import subprocess, sys, datetime, pwd, os, calendar, itertools
+
+workday_count = 5
+valid_days = list(calendar.day_abbr)[:workday_count]
 
 
-def calculate_date(homeOfficeDay):
-    workdays = 5
+def get_input():
+    arg_names = ['command','recepient', 'sender', 'day']
+    args = dict(itertools.izip_longest(arg_names, sys.argv))
+
+    day = args['day']
+    if day is None:
+        sys.exit("Please specify home office day!")
+    elif day not in valid_days:
+        sys.exit("You must provide one of the following days: ["+",".join(valid_days)+"]")
+    else:
+        return day
+
+
+def calculate_date(home_office_day):
     now = datetime.datetime.now()
     first_day_in_week = now - datetime.timedelta(days=now.weekday())
     dates = {}
 
-    for d in range(now.weekday(), workdays):
+    for d in range(now.weekday(), workday_count):
         day = (first_day_in_week + datetime.timedelta(days=d + 7))
-        dayName = day.strftime("%a")
-        fullDate = day.strftime("%A, %d %b %Y")
-        dates[dayName] = fullDate
+        day_name = day.strftime("%a")
+        full_name = day.strftime("%A, %d %b %Y")
+        dates[day_name] = full_name
 
-    chosenDay = dates.get(homeOfficeDay)
-    if chosenDay == None:
-        sys.exit('You cannot select past days!')
+    chosen_day = dates.get(home_office_day)
+    if chosen_day is None:
+        sys.exit("You cannot select past days")
     else:
-        return chosenDay
+        return chosen_day
 
 
 def prepare_message(date, author):
-    file = open('message.html')
-    message = file.read()
+    message_file = open('message.html')
+    message = message_file.read()
     return message.replace('$DATE', date).replace('$AUTHOR', author)
 
 
@@ -38,6 +53,7 @@ def send_message(recipient, subject, body):
 
 
 def get_name():
+    # TODO: use config as a fallback?
     name = pwd.getpwuid(os.getuid())[4].split(", ")
     return name[1] + " " + name[0]
 
@@ -46,13 +62,17 @@ def format_my_email(email):
     return get_name() + "<" + email + ">"
 
 
-recipient = sys.argv[1]
-sender = sys.argv[2]
-homeOfficeDay = sys.argv[3]
+def main():
+    # TODO: move e-mails to config file
+    recipient = sys.argv[1]
+    sender = sys.argv[2]
+    day = get_input()
 
-date = calculate_date(homeOfficeDay)
-subject = 'Home Office Request for ' + date + '\nContent-Type: text/html\nFrom: ' + format_my_email(sender)
-author = get_name()
-body = prepare_message(date, author)
+    date = calculate_date(day)
+    subject = 'Home Office Request for ' + date + '\nContent-Type: text/html\nFrom: ' + format_my_email(sender)
+    author = get_name()
+    body = prepare_message(date, author)
 
-send_message(recipient, subject, body)
+    send_message(recipient, subject, body)
+
+main()
