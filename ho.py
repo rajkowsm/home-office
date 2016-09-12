@@ -1,13 +1,20 @@
 #!/usr/bin/python
 
-import subprocess, sys, datetime, pwd, os, calendar, itertools
+import subprocess, sys, datetime, pwd, os, calendar, itertools, ConfigParser
 
 workday_count = 5
 valid_days = list(calendar.day_abbr)[:workday_count]
 
 
+def load_config():
+    config = ConfigParser.SafeConfigParser()
+    config.read('config.ini')
+
+    return config
+
+
 def get_input():
-    arg_names = ['command','recepient', 'sender', 'day']
+    arg_names = ['command','day']
     args = dict(itertools.izip_longest(arg_names, sys.argv))
 
     day = args['day']
@@ -63,10 +70,15 @@ def format_my_email(email):
 
 
 def main():
-    # TODO: move e-mails to config file
-    recipient = sys.argv[1]
-    sender = sys.argv[2]
+    config = load_config()
     day = get_input()
+
+    try:
+        recipient = config.get("email", "recipient")
+        sender = config.get("email", "sender")
+    except (ConfigParser.NoOptionError, ConfigParser.NoSectionError) as e:
+        sys.exit("Invalid configuration file!")
+
 
     date = calculate_date(day)
     subject = 'Home Office Request for ' + date + '\nContent-Type: text/html\nFrom: ' + format_my_email(sender)
