@@ -32,7 +32,7 @@ def calculate_date(home_office_day):
     dates = {}
 
     for d in range(now.weekday(), workday_count):
-        day = (first_day_in_week + datetime.timedelta(days=d + 7))
+        day = (first_day_in_week + datetime.timedelta(days=d))
         day_name = day.strftime("%a")
         full_name = day.strftime("%A, %d %b %Y")
         dates[day_name] = full_name
