@@ -17,6 +17,7 @@ containing:
 ```ini
 [email]
 recipient=your.supervisor@company.com
+cc=your.additional.supervisor.if.needed@com
 sender=your.email@company.com
 ```
 

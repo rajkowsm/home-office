@@ -51,9 +51,12 @@ def prepare_message(date, author):
 
 
 # TODO: look into SMTP
-def send_message(recipient, subject, body):
+def send_message(recipient, cc, subject, body):
     try:
-        process = subprocess.Popen(['mail', '-s', subject, recipient], stdin=subprocess.PIPE)
+        if cc:
+            process = subprocess.Popen(['mail', '-s', subject, '-c', cc, recipient], stdin=subprocess.PIPE)
+        else:
+            process = subprocess.Popen(['mail', '-s', subject, recipient], stdin=subprocess.PIPE)
     except Exception, error:
         print error
     process.communicate(body)
@@ -76,15 +79,15 @@ def main():
     try:
         recipient = config.get("email", "recipient")
         sender = config.get("email", "sender")
+        cc = config.get("email", "cc")
     except (ConfigParser.NoOptionError, ConfigParser.NoSectionError) as e:
         sys.exit("Invalid configuration file!")
-
 
     date = calculate_date(day)
     subject = 'Home Office Request for ' + date + '\nContent-Type: text/html\nFrom: ' + format_my_email(sender)
     author = get_name()
     body = prepare_message(date, author)
 
-    send_message(recipient, subject, body)
+    send_message(recipient, cc, subject, body)
 
 main()
